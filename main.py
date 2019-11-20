@@ -1,44 +1,50 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Nov 13 18:26:36 2019
-
-@author: MyLAP
-"""
-
-import preprocessing
-import train_textgen
+from preprocessing import preprocess_corpus
+from train_textgen import train_neural_network
+from generate import generate_texts
+import spacy
 
 
 # define text source
+#python -m spacy download en_core_web_sm
 
+nlp = spacy.load("en_core_web_sm")
+titles = pd.read_csv('data/titles.csv')
+abstracts = pd.read_csv('data/abstracts.csv')
+
+corpus_path = "data/all_text.txt"
 # calculate stats
 
-# set general parameters from stats
-# Corpus parameters.
-corpus_path = "abstracts.csv"
+# --------------------- declare global vars ----------------------------------
 
-# Preprocessing parameters.
-preprocessed_corpus_path = "abstracts_preprocessed.p"
+# set general parameters from stats
+# Corpus parameters
+
+# Preprocessing parameters
+preprocessed_corpus_path = "processed/abstracts_preprocessed.p"
 most_common_words_number = 10000
 
-# Training parameters.
+# Training parameters
 model_path = "models/mangroves_model.h1"
 dataset_size = 5000
 sequence_length = 30
-epochs = 1
+epochs = 10
 batch_size = 128
 hidden_size = 1000
 
 # Generation parameters.
-generated_sequence_length = 50
+generated_sequence_length = 30
+log_path = "logs/log_generated_texts.csv"
 
-
-# prepare fro training
-preprocessing.preprocess_corpus()
+# prepare for training
+preprocess_corpus()
 
 # train
-train_textgen.train_neural_network()
+train_neural_network(preprocessed_corpus_path, model_path, hidden_size, sequence_length, epochs, batch_size)
 
 # generate
-
-generate_texts()
+text = ["mangrove", "crabs", "have", "an", "important", "role", "in", "the", "mangroves", 
+        "of", "the", "Pacific", "ocean", "near", "India", "where", "they", "live", 
+        "near", "rhizophora", "plants", "and", "feed", "from", "their", "leaves",
+        "and", "also", "they", "also", "predators", "invetebrates"]
+generate_texts(text, preprocessed_corpus_path, model_path, log_path, generated_sequence_length, log=True) 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -11,10 +12,10 @@ import nltk
 from nltk import word_tokenize
 import pickle
 import random
-import keras
 from keras import utils
 
-
+dataset_size = 5000
+sequence_length = 30
 
 def get_dataset(indices):
 
@@ -45,7 +46,7 @@ def get_dataset(indices):
 
     
 
-def train_neural_network():
+def train_neural_network(preprocessed_corpus_path, model_path, hidden_size, sequence_length, epochs=10, batch_size=128):
     """ Trains the corpus """
     # Loading index-encoded corpus and vocabulary.
     indices, vocabulary = pickle.load(open(preprocessed_corpus_path, "rb"))
@@ -59,7 +60,9 @@ def train_neural_network():
     print("Creating model...")
     model = models.Sequential()
     model.add(layers.Embedding(len(vocabulary), hidden_size, input_length=sequence_length))
+    model.add(layers.LSTM(hidden_size, return_sequences=True))
     model.add(layers.LSTM(hidden_size))
+    model.add(layers.Dense(len(vocabulary)))
     model.add(layers.Dense(len(vocabulary)))
     model.add(layers.Activation('softmax'))
     model.summary()

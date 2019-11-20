@@ -1,19 +1,12 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
 import spacy
-import sys
 import gensim
+import pickle
 from collections import Counter
 import nltk
 from nltk import word_tokenize
-
-#python -m spacy download en_core_web_sm
-
-nlp = spacy.load("en_core_web_sm")
-titles = pd.read_csv('data/titles.csv')
-abstracts = pd.read_csv('data/abstracts.csv')
-
-corpus_path = "data/all_text.txt"
 
 preprocess_anyway = True
 
@@ -29,8 +22,8 @@ def add_stats(texts):
     for a, i in texts.item():
         sentences = nltk.sent_tokenize(a)
         corpus_stats.loc[i, "sentence_count"] = len(sentences)
-        corpus_stats.loc[i, "word_count"] = 33
-        
+        corpus_stats.loc[i, "word_count"] = 33 #TODO
+                
         temp = []
         for s in sentences:
             tokens = nltk.word_tokenize(s)
@@ -38,7 +31,7 @@ def add_stats(texts):
         corpus_stats.loc[i, "mean_word_count"] = np.mean(temp)
     return corpus_stats
 
-def make_fulltext(texts):
+def make_fulltext(texts, corpus_path):
     fulltext = open(corpus_path, "w")
     for t in texts:
         try:         
@@ -55,11 +48,8 @@ def encode_sequence(sequence, vocabulary):
     return [vocabulary.index(element) for element in sequence if element in vocabulary]
 
 
-def preprocess_corpus():
-    """
-    Preprocesses the corpus either if it has not been done before or if it is
-    forced.
-    """
+def preprocess_corpus(corpus_path, preprocessed_corpus_path, most_common_words_number):
+    """ loads a text file and generate indices adn vocabulary from tokens"""
 
     if preprocess_anyway == True:
         print("Preprocessing corpus...")
