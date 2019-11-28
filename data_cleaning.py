@@ -22,11 +22,13 @@ clean_dataset.abstract = replace_str(raw.abstract)
 # remove abstracts that are too short
 list_ids = remove_short_texts(clean_dataset.abstract)
 clean_dataset.drop(list_ids, inplace=True)
+
+# reset index before saving
 clean_dataset.reset_index(inplace=True, drop=True)
 # save cleaned dataset
 try:
     clean_dataset.to_csv(config.CLEAN_DATA_PATH)
-    print('clean dataset saved sucessfully at', config.CLEAN_DATA_PATH)
+    print('clean dataset saved successfully at', config.CLEAN_DATA_PATH)
 except:
     print('not possible to save')
 ##############################################################################
@@ -79,13 +81,13 @@ def replace_str(data):
     data = data.str.replace("\%$","% ")
     data = data.str.replace("."," ")
     data = data.str.replace(" & "," and ")
-    data = data.str.replace("\textit"," ")
+    data = data.str.replace("\\textit"," ")
     data = data.str.replace("{","")
     data = data.str.replace("}","")
     data = data.str.replace(r"\\mathcal"," ")
     data = data.str.replace(r"\\infty"," ")
     data = data.str.replace(r"\\mathbb"," ")
-    data = data.str.replace("\tilde"," ")
+    data = data.str.replace("\\tilde"," ")
     data = data.str.replace(r"\\ell"," ")
     data = data.str.replace(r"\sqrt"," ")
     data = data.str.replace(r"\\log_"," ")
