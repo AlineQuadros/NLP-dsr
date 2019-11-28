@@ -3,7 +3,7 @@ from preprocessing import preprocess_corpus
 from train_textgen import train_neural_network
 from generate import generate_texts
 import spacy
-
+import pandas as pd
 
 # define text source
 #python -m spacy download en_core_web_sm

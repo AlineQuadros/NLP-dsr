@@ -20,13 +20,6 @@ import gensim
 
 # code from: https://radimrehurek.com/gensim/auto_examples/tutorials/run_doc2vec_lee.html#sphx-glr-auto-examples-tutorials-run-doc2vec-lee-py
 
-# Set file names for train and test data
-test_data_dir = os.path.join(gensim.__path__[0], 'test', 'test_data')
-lee_train_file = os.path.join(test_data_dir, 'lee_background.cor')
-lee_test_file = os.path.join(test_data_dir, 'lee.cor')
-
-import smart_open
-
 def read_corpus(texts, tokens_only=False):
     for i, line in enumerate(texts):
         try:
@@ -39,13 +32,13 @@ def read_corpus(texts, tokens_only=False):
         except:
             pass
         
-train_corpus = list(read_corpus(abstracts.abstract[:10000]))
-test_corpus = list(read_corpus(abstracts.abstract[10000:12000], tokens_only=True))
 
-model = gensim.models.doc2vec.Doc2Vec(vector_size=100, min_count=2, epochs=40)
+
+model = gensim.models.doc2vec.Doc2Vec(vector_size=200, min_count=2, epochs=40)
 
 model.build_vocab(train_corpus)
 print(len(model.wv.vocab))
+print(model.wv.vocab['crabs'].count)
 
 model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
 
@@ -56,8 +49,12 @@ ranks = []
 second_ranks = []
 for doc_id in range(len(train_corpus)):
     inferred_vector = model.infer_vector(train_corpus[doc_id].words)
+    # docvecs.most_similar calculates cosine similarity
     sims = model.docvecs.most_similar([inferred_vector], topn=len(model.docvecs))
+    #sims = model.docvecs.most_similar([inferred_vector])
+    print("simil", sims)
     rank = [docid for docid, sim in sims].index(doc_id)
+    print('ranks:', ranks)
     ranks.append(rank)
 
     second_ranks.append(sims[1])
