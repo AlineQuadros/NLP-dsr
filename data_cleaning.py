@@ -27,7 +27,7 @@ clean_dataset.drop(list_ids, inplace=True)
 clean_dataset.reset_index(inplace=True, drop=True)
 # save cleaned dataset
 try:
-    clean_dataset.to_csv(config.CLEAN_DATA_PATH)
+    clean_dataset.to_csv(config.CLEAN_DATA_PATH, index=False)
     print('clean dataset saved successfully at', config.CLEAN_DATA_PATH)
 except:
     print('not possible to save')
@@ -38,7 +38,7 @@ except:
 # remove starts with Discussion
 # remove contains "extended abstracts"
 def get_list_nonabstracts(data):
-    """ returns the ids of abstracts from conference proceedings or other 
+    """ returns the ids of abstracts from conference proceedings or other
     unhelpfull items"""
     starts_with = ['Discussion', 'Comment']
     contains = ['extended abstracts']
@@ -74,26 +74,29 @@ def replace_str(data):
     data = data.str.lower()
     data = data.str.strip()
     data = data.str.replace("$","")
-    data = data.str.replace("\n"," ")
+    data = data.str.replace(r"\n"," ")
     data = data.str.replace("~"," ")
-    data = data.str.replace(":"," ") #not sure
+    data = data.str.replace(":"," ")
+    data = data.str.replace(";", ".")
     data = data.str.replace('"'," ")
     data = data.str.replace("\%$","% ")
-    data = data.str.replace("."," ")
     data = data.str.replace(" & "," and ")
-    data = data.str.replace("\\textit"," ")
+    data = data.str.replace(r"\\textit"," ")
     data = data.str.replace("{","")
     data = data.str.replace("}","")
     data = data.str.replace(r"\\mathcal"," ")
     data = data.str.replace(r"\\infty"," ")
     data = data.str.replace(r"\\mathbb"," ")
-    data = data.str.replace("\\tilde"," ")
+    data = data.str.replace(r"\\tilde"," ")
     data = data.str.replace(r"\\ell"," ")
     data = data.str.replace(r"\sqrt"," ")
     data = data.str.replace(r"\\log_"," ")
     data = data.str.replace(r"\sim"," ")
     data = data.str.replace(r"\boldsymbol"," ")
     data = data.str.replace(r"\\em"," ")
+    data = data.str.replace(r"\\it", " ")
+    data = data.str.replace(r"\\cite", " ")
+
     data = data.str.replace(r"\\emph"," ")
     data = data.str.replace(r"\sqrt"," ")
     
