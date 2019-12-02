@@ -1,21 +1,7 @@
 # -*- coding: utf-8 -*-
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
-import keras
-from keras import models
-from keras import layers
-from keras.utils import to_categorical
-import os
-from collections import Counter
-from nltk import word_tokenize
 
-from keras import utils
+#import gensim.models.word2vec
 
-from gensim.models.word2vec import Word2Vec
-import gensim.downloader as api
-
-import os
 import gensim
 
 # code from: https://radimrehurek.com/gensim/auto_examples/tutorials/run_doc2vec_lee.html#sphx-glr-auto-examples-tutorials-run-doc2vec-lee-py
@@ -27,22 +13,23 @@ def read_corpus(texts, tokens_only=False):
             if tokens_only:
                 yield tokens
             else:
-                # For training data, add tags
+                # For training data, add tags which is the document index
                 yield gensim.models.doc2vec.TaggedDocument(tokens, [i])
         except:
             pass
         
-
+train_corpus = list(read_corpus(clean_dataset.abstract[: 40000]))
+test_corpus = list(read_corpus(clean_dataset.abstract[40000:41591], tokens_only=True))
 
 model = gensim.models.doc2vec.Doc2Vec(vector_size=200, min_count=2, epochs=40)
 
 model.build_vocab(train_corpus)
 print(len(model.wv.vocab))
-print(model.wv.vocab['crabs'].count)
+print(model.wv.vocab['supervised'].count)
 
 model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
 
-vector = model.infer_vector(['mangrove', 'plants', 'are', 'common', 'in', 'coasts'])
+vector = model.infer_vector(['machine', 'learning', 'is', 'a', 'date', 'type'])
 print(vector)
 
 ranks = []

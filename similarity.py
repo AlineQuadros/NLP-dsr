@@ -15,13 +15,6 @@ from nltk import tokenize
 import csv
 import config
 
-# load the USE - universal-sentence-encoder from Google
-embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/3")
-
-clean_dataset = pd.read_csv('data/clean_dataset.csv')
-calculate_overall_USE(clean_dataset)
-
-
 ##############################################################################
 
 def calculate_overall_USE(data):
@@ -67,3 +60,23 @@ def get_similarity_pairs_USE(e1, e2):
         list_sims.append(max_sim)
 
     return sum(list_sims)/(len(list_sims))
+
+#################################################################################
+
+def assemble_dataset_from_files():
+    dataset_USE = pd.DataFrame()
+    for f in glob.glob("similarity/*.csv"):
+        txt = open(f, "r")
+        for l in txt:
+            line = json.loads(l)
+            dataset_USE = dataset_USE.append(pd.Series([line['ab1'], line['ab2'], line['sim_use']]), ignore_index=True)
+        #dataset_USE = dataset_USE.append(raw, ignore_index=True)
+
+if __name__ == '__main__':
+    # load the USE - universal-sentence-encoder from Google
+    embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/3")
+
+    clean_dataset = pd.read_csv('data/clean_dataset.csv')
+    #clean_dataset = pd.read_csv('clean_dataset.csv')
+    #calculate_overall_USE(clean_dataset)
+
