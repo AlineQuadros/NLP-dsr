@@ -12,6 +12,8 @@ import pandas as pd
 import numpy as np
 import tensorflow_hub as hub
 from nltk import tokenize
+import glob
+import json
 import csv
 import config
 
@@ -68,6 +70,7 @@ def assemble_dataset_from_files():
     for f in glob.glob("similarity/*.csv"):
         txt = open(f, "r")
         for l in txt:
+            l = l.replace("\'", "\"")
             line = json.loads(l)
             dataset_USE = dataset_USE.append(pd.Series([line['ab1'], line['ab2'], line['sim_use']]), ignore_index=True)
         #dataset_USE = dataset_USE.append(raw, ignore_index=True)
@@ -75,8 +78,11 @@ def assemble_dataset_from_files():
 if __name__ == '__main__':
     # load the USE - universal-sentence-encoder from Google
     embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/3")
-
+    # load the data
     clean_dataset = pd.read_csv('data/clean_dataset.csv')
     #clean_dataset = pd.read_csv('clean_dataset.csv')
-    #calculate_overall_USE(clean_dataset)
+    # calculate pairwise similarity and dump to json files
+    calculate_overall_USE(clean_dataset)
+    # load json data from multiple files into unique dataframe
+    assemble_dataset_from_files()
 
