@@ -60,20 +60,22 @@ def get_similarity_pairs_USE(e1, e2):
             sim = np.inner(e2[s], e1[s2])
             if sim > max_sim: max_sim = sim
         list_sims.append(max_sim)
-
     return sum(list_sims)/(len(list_sims))
-
-#################################################################################
 
 def assemble_dataset_from_files():
     dataset_USE = pd.DataFrame()
-    for f in glob.glob("similarity/*.csv"):
-        txt = open(f, "r")
+    for f in glob.glob('similarity/*.csv'):
+        print('reading data from file {}...'.format(f))
+        txt = open(f, 'r')
         for l in txt:
             l = l.replace("\'", "\"")
             line = json.loads(l)
             dataset_USE = dataset_USE.append(pd.Series([line['ab1'], line['ab2'], line['sim_use']]), ignore_index=True)
         #dataset_USE = dataset_USE.append(raw, ignore_index=True)
+    dataset_USE.columns = ['ab1', 'ab2', 'sim_use']
+    dataset_USE.to_csv("data/similarity_USE.csv", index=False)
+
+##################################################################################################################
 
 if __name__ == '__main__':
     # load the USE - universal-sentence-encoder from Google
