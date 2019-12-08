@@ -14,18 +14,36 @@ import re
 
 raw = pd.read_csv(config.RAW_DATA_PATH)
 clean_dataset = raw.copy()
+print('number or rows in the raw dataset:', clean_dataset.shape[0])
 
-# first clean abstracts from undesired character
-clean_dataset.abstract = replace_str(raw.abstract)
+# drop duplicates based on id
+clean_dataset.drop_duplicates(subset = 'id', inplace=True)
+clean_dataset.reset_index(inplace=True, drop=True)
+print('number of rows after dropping id duplicates:', clean_dataset.shape[0])
+
+#drop duplicates of titles
+clean_dataset.drop_duplicates(subset = 'title', inplace=True)
+clean_dataset.reset_index(inplace=True, drop=True)
+print('number of rows after dropping id duplicates:', clean_dataset.shape[0])
+
+# first clean abstracts from undesired characters
+clean_dataset.abstract = replace_str_abstracts(raw.abstract)
+
+#  clean titles from undesired characters
+clean_dataset.title = replace_str_titles(clean_dataset.title)
 
 # remove comments, proceedings, and discussions
 list_ids = get_list_nonabstracts(clean_dataset)
 clean_dataset.drop(list_ids, inplace=True)
 clean_dataset.reset_index(inplace=True, drop=True)
+print(len(list_ids), 'non-abstracts removed')
+
 # remove abstracts that are too short
 list_ids = remove_short_texts(clean_dataset.abstract)
 clean_dataset.drop(list_ids, inplace=True)
 clean_dataset.reset_index(inplace=True, drop=True)
+print(len(list_ids), 'short texts removed')
+
 # save cleaned dataset
 try:
     clean_dataset.to_csv(config.CLEAN_DATA_PATH, index=False)
@@ -40,7 +58,7 @@ except:
 # remove contains "extended abstracts"
 def get_list_nonabstracts(data):
     """ returns the ids of abstracts from conference proceedings or other
-    unhelpfull items"""
+    unhelpful items"""
     ids = []
     for i in range(data.shape[0]):
         if data.title[i].startswith('Proceedings'):
@@ -71,7 +89,7 @@ def remove_url(str):
     res = re.sub(r'^https?:\/\/.*[\r\n]*', '', str, flags=re.MULTILINE)
     return res
 
-def replace_str(data):
+def replace_str_abstracts(data):
     data = data.str.lower()
     data = data.str.strip()
     data = data.apply(remove_url)
@@ -114,14 +132,11 @@ def replace_str(data):
     data = data.str.replace(r"\\em"," ")
     data = data.str.replace(r"\\it", " ")
     data = data.str.replace(r"\\^", "")
-
     data = data.str.replace(r"\\mbox", " ")
     data = data.str.replace(r"\\underline", " ")
     data = data.str.replace(r"\\epsilon", "epsilon")
     data = data.str.replace(r"\\cite", " ")
-
     data = data.str.replace("`", " ")
-
     data = data.str.replace(r"\\emph"," ")
     data = data.str.replace(r"\\sqrt","sqrt ")
     data = data.str.replace(r"\\log", "log ")
@@ -129,6 +144,36 @@ def replace_str(data):
     # last
     data = data.str.replace(r"\\", "")
     data = data.str.replace("   "," ")
+    data = data.str.replace("  ", " ")
+
+    return data
+
+
+def replace_str_titles(data):
+    data = data.str.lower()
+    data = data.str.strip()
+    data = data.str.replace(r"\n", " ")
+    data = data.str.replace("?", " ")
+    data = data.str.replace("--", ", ")
+    data = data.str.replace("~", " ")
+    data = data.str.replace(" / ", " ")
+    data = data.str.replace("/", " ")
+    data = data.str.replace("|", " ")
+    data = data.str.replace(":", ",")
+    data = data.str.replace(";", ".")
+    data = data.str.replace('"', " ")
+    data = data.str.replace("'", "")
+    data = data.str.replace("`", "")
+    data = data.str.replace("Ã©", "e")
+    data = data.str.replace("$", "")
+    data = data.str.replace(" & ", " and ")
+    data = data.str.replace(r"\\'", " ")
+    data = data.str.replace("{", "")
+    data = data.str.replace("}", "")
+    data = data.str.replace(r"\\^", "")
+    data = data.str.replace("`", " ")
+    # last
+    data = data.str.replace("   ", " ")
     data = data.str.replace("  ", " ")
 
     return data
