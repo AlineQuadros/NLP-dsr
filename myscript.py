@@ -25,8 +25,6 @@ if __name__ == '__main__':
 # set general parameters from stats
 # Corpus parameters
 
-
-
 def text_generation():
         titles = pd.read_csv('data/titles.csv')
         abstracts = pd.read_csv('data/abstracts.csv')

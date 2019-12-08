@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Fri Nov 22 18:46:19 2019
-
 @author: Aline
-
 Functions to calculate similarity between abstracts
-
 """
 ##############################################################################
 import pandas as pd
@@ -25,10 +22,10 @@ def calculate_overall_USE(data):
         print(i)
         list_similarity_USE = []
         list_sim = []
+        ab1 = tokenize.sent_tokenize(data.abstract[i])
+        e1 = embed(ab1)["outputs"]
         for j in np.arange(i + 1, len(data)):
-            ab1 = tokenize.sent_tokenize(data.abstract[i])
             ab2 = tokenize.sent_tokenize(data.abstract[j])
-            e1 = embed(ab1)["outputs"]
             e2 = embed(ab2)["outputs"]
             sim = get_similarity_pairs_USE(e1, e2)
             line = "{'ab1':'" + str(data.id[i]) + "','ab2':'" + str(data.id[j]) + "','sim_use':" + str(round(sim, 3)) + "}"
@@ -84,7 +81,7 @@ if __name__ == '__main__':
     clean_dataset = pd.read_csv('data/clean_dataset.csv')
     #clean_dataset = pd.read_csv('clean_dataset.csv')
     # calculate pairwise similarity and dump to json files
-    calculate_overall_USE(clean_dataset)
+    calculate_overall_USE(clean_dataset[:1000])
     # load json data from multiple files into unique dataframe
     assemble_dataset_from_files()
 

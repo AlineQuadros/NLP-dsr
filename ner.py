@@ -2,13 +2,13 @@
 """
 Created on Wed Nov 20 17:56:04 2019
 
-@author: MyLAP
+@author: Aline
 """
 import spacy
 
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_lg")
 
-sentence = str(abstracts.abstract[4])
+sentence = str(clean_dataset.abstract[5])
 sentence_nlp = nlp(sentence)
 
 # print named entities in article
