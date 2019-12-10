@@ -8,32 +8,25 @@ code adapted from https://www.machinelearningplus.com/nlp/topic-modeling-gensim-
 ##############################################################################
 import pandas as pd
 import numpy as np
-from nltk import tokenize
-import glob
-import json
-import csv
-import config
 import joblib
-
-import re
+from operator import itemgetter
 from pprint import pprint
 
 # Gensim
 import gensim
 import gensim.corpora as corpora
 from gensim.utils import simple_preprocess
-from gensim.test.utils import datapath
 from gensim.models import CoherenceModel
 from  gensim.models.ldamodel import LdaModel
 import matplotlib.pyplot as plt
 
 # spacy for lemmatization
-import spacy
 import en_core_web_lg
+nlp = en_core_web_lg.load()
 # Plotting tools
 import pyLDAvis
 import pyLDAvis.gensim
-nlp = en_core_web_lg.load()
+
 # NLTK Stop words
 from nltk.corpus import stopwords
 stop_words = stopwords.words('english')
@@ -145,10 +138,9 @@ lda = LdaModel.load('models/LDA_20topics')
 
 def get_best_topic(corpus):
     topic_abstract_lda_10 = pd.DataFrame(columns=['id', 'topic'])
-    for i in range(len(clean_dataset)):
-        topic_abstract_lda_10[i, 'topic'] = max(lda_model.get_document_topics(corpus[i]), key=itemgetter(1))[0]
-        topic_abstract_lda_10[i, 'id'] = clean_dataset.id[i]
+    for i in range(len(corpus)):
+        topic_abstract_lda_10 = topic_abstract_lda_10.append({'id': clean_dataset.id[i], 'topic': max(lda_model.get_document_topics(corpus[i]), key=itemgetter(1))[0]}, ignore_index=True)
     topic_abstract_lda_10.to_csv('processed/topic_abstract_lda_10.csv', index=False)
     return topic_abstract_lda_10
 
-from operator import itemgetter
+

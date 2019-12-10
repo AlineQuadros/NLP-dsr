@@ -4,7 +4,11 @@
 #import gensim.models.word2vec
 import pandas as pd
 import gensim
+import multiprocessing
+import joblib
 
+cores = multiprocessing.cpu_count()
+assert gensim.models.doc2vec.FAST_VERSION > -1,
 ##################################################################################################
 
 def read_corpus(texts, tokens_only=False):
@@ -18,14 +22,19 @@ def read_corpus(texts, tokens_only=False):
                 yield gensim.models.doc2vec.TaggedDocument(tokens, [i])
         except:
             pass
-        
 
 
 def doc2vec_train(train_corpus):
-    model = gensim.models.doc2vec.Doc2Vec(vector_size=200, min_count=2, epochs=40)
+    model = gensim.models.doc2vec.Doc2Vec(vector_size=100, min_count=2, workers=cores, dm=1, alpha=0.025, min_alpha=0.025)
     model.build_vocab(train_corpus)
     print("This model has a vocabulary of {} words".format(len(model.wv.vocab)))
-    model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
+
+    #starts training and decreases learning rates
+    for epoch in range(10):
+        print(epoch)
+        model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
+        model.alpha -= 0.002  # decrease the learning rate
+        model.min_alpha = model.alpha  # fix the learning rate, no decay
     print('finished training')
     return model
 
@@ -78,10 +87,19 @@ def merge_similarities(file_sim1, file_sim2):
 if __name__ == '__main__':
     # load the data
     clean_dataset = pd.read_csv('data/clean_dataset.csv')
-    train_corpus = list(read_corpus(clean_dataset.abstract[:5000]))
+    train_corpus = list(read_corpus(clean_dataset.abstract))
     #test_corpus = list(read_corpus(clean_dataset.abstract[41000:41591], tokens_only=True))
 
-    model = doc2vec_train(train_corpus)
+    # save pre-processed corpus
+    joblib.dump(train_corpus, 'corpus/all_abstracts_for_word2vec.cor')
+
+    word2vec_model = doc2vec_train(train_corpus)
+    word2vec_model.save('models/model.doc2vec')
     get_similarity_pairs_doc2vec(model)
 
 merge_similarities('data/similarity_use.csv', 'data/similarity_doc2vec_processed.csv')
+
+
+inferred_vector = word2vec_model.infer_vector(train_corpus[6343].words)
+# sims = model.docvecs.most_similar([inferred_vector], topn=10)
+sims = word2vec_model.docvecs.most_similar([inferred_vector], topn=5)
