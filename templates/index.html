@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table>
+    <tr>
+        <td> <b>{{id1}} {{title1}} </b> {{abstract1}}</td>
+        <td> <b>{{id2}} {{title2}} </b> {{abstract2}}</td>
+        <td> <b>{{id3}} {{title3}} </b> {{abstract3}}</td>
+    </tr>
+</table>
+<table>
+    <tr>
+        <td> <b> {{sug_title1}} </b> {{sug_abstract1}}</td>
+        <td> <b> {{sug_title2}} </b> {{sug_abstract2}}</td>
+        <td> <b> {{sug_title3}} </b> {{sug_abstract3}}</td>
+        <td> <b> {{sug_title4}} </b> {{sug_abstract4}}</td>
+        <td> <b> {{sug_title5}} </b> {{sug_abstract5}}</td>
+    </tr>
+</table>
+
+<form action = "http://localhost:5000/choose" method = "post">
+         <p>Enter Name:</p>
+         <p><input type = "text" name = "chosen_id" /></p>
+         <p><input type = "submit" value = "submit" /></p>
+</form>
+
+</body>
+</html>
