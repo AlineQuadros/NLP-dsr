@@ -8,7 +8,7 @@ import multiprocessing
 import joblib
 
 cores = multiprocessing.cpu_count()
-assert gensim.models.doc2vec.FAST_VERSION > -1,
+assert gensim.models.doc2vec.FAST_VERSION > -1
 ##################################################################################################
 
 def read_corpus(texts, tokens_only=False):
@@ -28,7 +28,6 @@ def doc2vec_train(train_corpus):
     model = gensim.models.doc2vec.Doc2Vec(vector_size=100, min_count=2, workers=cores, dm=1, alpha=0.025, min_alpha=0.025)
     model.build_vocab(train_corpus)
     print("This model has a vocabulary of {} words".format(len(model.wv.vocab)))
-
     #starts training and decreases learning rates
     for epoch in range(10):
         print(epoch)
@@ -91,15 +90,13 @@ if __name__ == '__main__':
     #test_corpus = list(read_corpus(clean_dataset.abstract[41000:41591], tokens_only=True))
 
     # save pre-processed corpus
-    joblib.dump(train_corpus, 'corpus/all_abstracts_for_word2vec.cor')
+    joblib.dump(train_corpus, 'corpus/all_abstracts_for_doc2vec.corpus')
 
     word2vec_model = doc2vec_train(train_corpus)
-    word2vec_model.save('models/model.doc2vec')
-    get_similarity_pairs_doc2vec(model)
+    word2vec_model.save('models/doc2vec_all_abstracts.model')
 
+
+# in case wants to calculate pairwise sims
+get_similarity_pairs_doc2vec(model)
 merge_similarities('data/similarity_use.csv', 'data/similarity_doc2vec_processed.csv')
 
-
-inferred_vector = word2vec_model.infer_vector(train_corpus[6343].words)
-# sims = model.docvecs.most_similar([inferred_vector], topn=10)
-sims = word2vec_model.docvecs.most_similar([inferred_vector], topn=5)
