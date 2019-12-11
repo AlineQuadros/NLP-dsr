@@ -24,10 +24,10 @@ print('number of rows after dropping id duplicates:', clean_dataset.shape[0])
 #drop duplicates of titles
 clean_dataset.drop_duplicates(subset = 'title', inplace=True)
 clean_dataset.reset_index(inplace=True, drop=True)
-print('number of rows after dropping id duplicates:', clean_dataset.shape[0])
+print('number of rows after dropping title duplicates:', clean_dataset.shape[0])
 
 # first clean abstracts from undesired characters
-clean_dataset.abstract = replace_str_abstracts(raw.abstract)
+clean_dataset.abstract = replace_str_abstracts(clean_dataset.abstract)
 
 #  clean titles from undesired characters
 clean_dataset.title = replace_str_titles(clean_dataset.title)
