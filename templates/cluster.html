@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Site made with Mobirise Website Builder v4.11.6, https://mobirise.com -->
+  <meta charset="UTF-8">
+
+  <title>Papers, pls!</title>
+
+  <script src="https://cdn.anychart.com/releases/8.7.0/js/anychart-base.min.js" type="text/javascript"></script>
+  <script src="https://cdn.anychart.com/releases/8.7.0/js/anychart-core.min.js" type="text/javascript"></script>
+  <script src="https://cdn.anychart.com/releases/8.7.0/js/anychart-graph.min.js" type="text/javascript"></script>
+
+      <!-- graphs -->
+<script>
+anychart.onDocumentReady(function () {
+
+    // create data
+    var data = {
+      nodes: [
+        {id: "Richard"},
+        {id: "Larry"},
+        {id: "Marta"},
+        {id: "Jane", x:  500, y: 500},
+        {id: "Norma"},
+        {id: "Frank"},
+        {id: "Brett"}
+      ],
+      edges: [
+        {from: "Richard", to: "Larry"},
+        {from: "Richard", to: "Marta"},
+        {from: "Larry",   to: "Marta"},
+        {from: "Marta",   to: "Jane"},
+        {from: "Jane",    to: "Norma"},
+        {from: "Jane",    to: "Frank"},
+        {from: "Jane",    to: "Brett"},
+        {from: "Brett",   to: "Frank"}
+      ]
+    };
+
+    // create a chart and set the data
+    var chart = anychart.graph(data);
+
+    // set the chart title
+    chart.title("Network Graph: Basic Sample");
+
+    // set the container id
+    chart.container("container");
+
+    // initiate drawing the chart
+    chart.draw();
+});
+</script>
+
+</head>
+<body>
+
+    <div id="container" style="width: 1000px; height: 800px;">sasdas</div>
+
+
+  
+  
+</body>
+</html>
