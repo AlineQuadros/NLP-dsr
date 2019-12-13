@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-# part of the code from: https://radimrehurek.com/gensim/auto_examples/tutorials/run_doc2vec_lee.html#sphx-glr-auto-examples-tutorials-run-doc2vec-lee-py
+# part of the code from: https://radimrehurek.com/gensim/auto_examples/tutorials/
+# run_doc2vec_lee.html#sphx-glr-auto-examples-tutorials-run-doc2vec-lee-py
 
-#import gensim.models.word2vec
 import pandas as pd
 import gensim
 import multiprocessing
@@ -9,6 +9,20 @@ import joblib
 
 cores = multiprocessing.cpu_count()
 assert gensim.models.doc2vec.FAST_VERSION > -1
+##################################################################################################
+
+# load data
+clean_dataset = pd.read_csv('data/clean_dataset.csv')
+train_corpus = list(read_corpus(clean_dataset.abstract))
+# test_corpus = list(read_corpus(clean_dataset.abstract[41000:41591], tokens_only=True))
+
+# save pre-processed corpus
+joblib.dump(train_corpus, 'corpus/all_abstracts_for_doc2vec.corpus')
+
+# train and save doc2vec model as file
+doc2vec_model = doc2vec_train(train_corpus)
+doc2vec_model.save('models/doc2vec_all_abstracts.model')
+
 ##################################################################################################
 
 def read_corpus(texts, tokens_only=False):
@@ -45,7 +59,9 @@ def get_similarity_pairs_doc2vec(model):
         sims = model.docvecs.most_similar([inferred_vector], topn=len(model.docvecs))
         for id, sim in enumerate(sims, 1):
             if ((clean_dataset.id[i] != clean_dataset.id[sim[0]]) & (sim[1] > 0.4)):
-                line = "{'ab1':'" + str(clean_dataset.id[i]) + "','ab2':'" + str(clean_dataset.id[sim[0]]) + "','sim_doc2vec':" + str(round(sim[1], 3)) + "}\n"
+                line = "{'ab1':'" + str(clean_dataset.id[i]) + \
+                       "','ab2':'" + str(clean_dataset.id[sim[0]]) + \
+                       "','sim_doc2vec':" + str(round(sim[1], 3)) + "}\n"
                 with open('data/similarity_doc2vec_1000.csv', 'a') as f:
                     f.write(line)
 
@@ -59,7 +75,9 @@ def get_distance_wm(model):
         for j in np.arange(i + 1, len(train_corpus)):
             abs2 = clean_dataset.id[j]
             wm_dist = model.wv.wmdistance(train_corpus[i].words, train_corpus[j].words)
-            line = "{'ab1':'" + abs1 + "','ab2':'" + abs2 + "','wm_dist':" + str(round(wm_dist, 3)) + "}\n"
+            line = "{'ab1':'" + abs1 + \
+                   "','ab2':'" + abs2 + \
+                   "','wm_dist':" + str(round(wm_dist, 3)) + "}\n"
             with open(path2, 'a+') as f:
                 f.write(line)
 
@@ -81,22 +99,6 @@ def merge_similarities(file_sim1, file_sim2):
     similarities = pd.read_csv(file_sim2)
     similarities = similarities.merge(pd_temp, how="inner", on=['ab1', 'ab2'])
     similarities.to_csv('data/similarity_master.csv', index=False)
-##############################################################################################################
-
-if __name__ == '__main__':
-    # load the data
-    clean_dataset = pd.read_csv('data/clean_dataset.csv')
-    train_corpus = list(read_corpus(clean_dataset.abstract))
-    #test_corpus = list(read_corpus(clean_dataset.abstract[41000:41591], tokens_only=True))
-
-    # save pre-processed corpus
-    joblib.dump(train_corpus, 'corpus/all_abstracts_for_doc2vec.corpus')
-
-    word2vec_model = doc2vec_train(train_corpus)
-    word2vec_model.save('models/doc2vec_all_abstracts.model')
 
 
-# in case wants to calculate pairwise sims
-get_similarity_pairs_doc2vec(model)
-merge_similarities('data/similarity_use.csv', 'data/similarity_doc2vec_processed.csv')
 
