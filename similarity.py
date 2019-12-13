@@ -11,10 +11,43 @@ import tensorflow_hub as hub
 from nltk import tokenize
 import glob
 import json
-import csv
-import config
+import joblib
+##############################################################################
+
+# load the USE - universal-sentence-encoder from Google
+embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/3")
+# load the data
+clean_dataset = pd.read_csv('data/clean_dataset.csv')
+corpus_tokenized = joblib.load('corpus/all_abstracts_tokenized.corpus')
+kmeans_dataset = pd.read_csv('processed/abstracts_kmeans_40clusters.csv')
+
+# calculate pairwise similarity within clusters
+for i in set(kmeans_dataset.k_means_cluster):
+    ids_arxiv = kmeans_dataset.id[kmeans_dataset.k_means_cluster == i]
+    ids_num = kmeans_dataset.id[kmeans_dataset.k_means_cluster == i].index.to_list()
+    assert len(ids_arxiv) == len(ids_num)
+    corpus_slice = [corpus_tokenized[i] for i in ids_num]
+    calculate_cluster_USE(corpus_slice, ids_arxiv, i)
 
 ##############################################################################
+
+def calculate_cluster_USE(corpus, ids_arxiv, cluster_id):
+    for i in range(len(corpus)):
+        # calculate similarity ALL vs. ALL within each cluster
+        print(i)
+        similarity_USE = pd.DataFrame()
+        ab1 = corpus[i]
+        e1 = embed(ab1)["outputs"]
+        #for j in np.arange(i+1, len(corpus)):
+        for j in range(len(corpus)):
+            print(j)
+            ab2 = corpus[j]
+            e2 = embed(ab2)["outputs"]
+            sim = get_similarity_pairs_USE(e1, e2)
+            similarity_USE = similarity_USE.append(pd.Series([ids_arxiv.iloc[i], ids_arxiv.iloc[j], round(sim, 3)]), ignore_index=True)
+        similarity_USE.columns = ['ab1', 'ab2', 'sim_USE']
+        similarity_USE.to_csv('similarity/similarity_USE_cluster'+str(cluster_id)+'.csv', index=False)
+
 
 def calculate_overall_USE(data):
     for i in range(len(data)):
@@ -34,7 +67,6 @@ def calculate_overall_USE(data):
         with open(temp, 'w+') as f:
             f.write('\n'.join(list_sim))
             f.close()
-
 
 def get_similarity_pairs_USE(e1, e2):
     """ calculates the mean of the maximum similarity between one sentence of one abstract against
@@ -73,15 +105,3 @@ def assemble_dataset_from_files():
     dataset_USE.to_csv("data/similarity_USE.csv", index=False)
 
 ##################################################################################################################
-
-if __name__ == '__main__':
-    # load the USE - universal-sentence-encoder from Google
-    embed = hub.load("https://tfhub.dev/google/universal-sentence-encoder/3")
-    # load the data
-    clean_dataset = pd.read_csv('data/clean_dataset.csv')
-    #clean_dataset = pd.read_csv('clean_dataset.csv')
-    # calculate pairwise similarity and dump to json files
-    calculate_overall_USE(clean_dataset[:1000])
-    # load json data from multiple files into unique dataframe
-    assemble_dataset_from_files()
-
